@@ -1,0 +1,31 @@
+---
+- name: Configure apt sources for Ubuntu
+
+  tasks:
+    - name: Check if the ubuntu.sources file exists
+      stat:
+        path: /etc/apt/sources.list.d/ubuntu.sources
+      register: sources_file
+
+    - name: Log file existence
+      debug:
+        msg: "File does not exist."
+      when: not sources_file.stat.exists
+
+    - name: Backup original ubuntu.sources file if it exists
+      copy:
+        src: /etc/apt/sources.list.d/ubuntu.sources
+        dest: /etc/apt/sources.list.d/ubuntu.sources.backup
+        remote_src: yes
+      when: sources_file.stat.exists
+
+    - name: Configure apt sources using the sources.list file
+      template:
+        src: ../templates/sources.list.j2  # Path to the template file
+        dest: /etc/apt/sources.list.d/ubuntu.sources
+      notify: update_apt_cache
+
+  handlers:
+    - name: update_apt_cache
+      apt:
+        update_cache: yes

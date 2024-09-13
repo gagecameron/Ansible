@@ -1,0 +1,10 @@
+---
+
+- name: Baseline Ubuntu Server Configuration
+  hosts:
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Include APT Sources Configuration
+      include_tasks: config/apt-sources.yaml
